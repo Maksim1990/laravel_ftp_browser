@@ -1,0 +1,144 @@
+#pagebuilder_menu{
+    position:fixed;
+    top: 150px;
+    left: 60%;
+}
+.maintab{
+    padding-top: 10px;
+}
+.text{
+    line-height: 40px;
+    font-size: 14px;
+    font-weight: bold;
+}
+a .link{
+    line-height: 40px;
+    font-size: 14px;
+    font-weight: bold;
+    color:green;
+}
+
+.delete {
+    color: #be241a;
+    font-size: 23px;
+}
+
+.icons span{
+    font-size: 23px;
+    margin-right: 10px;
+    float: right;
+}
+
+.insp_buttons{
+    margin-bottom: 20px;border-bottom: 2px solid #cbcbcb;padding-bottom: 20px;
+}
+.icon_module {
+    transition: box-shadow .3s;
+    width: 90%;
+    min-height: 180px;
+    border-radius:10px;
+    border: 1px solid #ccc;
+    background: #fff;
+    float: left;
+    margin-bottom: 5%;
+    padding: 10px;
+
+}
+.icon_module .font_icon{
+    font-size: 50px;
+    padding-top: 20px;
+    padding-bottom: 10px;
+}
+.icon_module:hover{
+    box-shadow: 0 0 11px rgba(33,33,33,.2);
+}
+
+.buttons{
+    margin: auto;
+    text-align: center;
+}
+.buttons a{
+    margin-bottom: 15px;
+}
+.icon_social{
+    font-size: 25px;
+    color: green;
+}
+
+.icon_social:hover{
+    color: #00b200;
+}
+
+.line{
+    padding: 15px 5px 15px 5px;
+    border-radius: 20px;
+}
+.line:hover{
+    background-color: rgba(0, 205, 0, 0.17);
+}
+.info_alert{
+    color: red;
+    font-weight: bold;
+}
+.title{
+    color:green;
+    border-bottom:2px solid green;
+    margin-bottom:20px;
+    width:675px;
+}
+#title_shape {
+    margin-left: 460px;
+    margin-top: -22px;
+    width: 222px;
+    height: 10px;
+    -webkit-transform: skew(20deg);
+    -moz-transform: skew(20deg);
+    -o-transform: skew(20deg);
+    background: green;
+    margin-bottom: 25px;
+
+}
+
+.card_item img{
+    object-fit: fill;
+    width:80%;
+}
+.card_item{
+    text-align: center;
+    max-height: 300px;
+}
+
+
+.profile_image{
+    text-align: center;
+}
+.profile_image img{
+    border-radius: 40px;
+    width: 90%;
+}
+
+@media (min-width: 768px) {
+
+}
+@media (min-width: 1300px) {
+    .card_item img{
+        object-fit: fill;
+        width:80%;
+        height:200px;
+    }
+}
+
+@media (min-width: 1400px) {
+    .card_item img{
+        object-fit: fill;
+        width:80%;
+        height:300px;
+    }
+}
+@media (max-width: 992px) {
+    #pagebuilder_menu{
+        position: initial;
+        top:10%;
+    }
+
+}
