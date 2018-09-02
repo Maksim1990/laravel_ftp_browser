@@ -30,6 +30,7 @@ a .link{
 }
 
 .insp_buttons{
+    width: 100%;
     margin-bottom: 20px;border-bottom: 2px solid #cbcbcb;padding-bottom: 20px;
 }
 .icon_module {

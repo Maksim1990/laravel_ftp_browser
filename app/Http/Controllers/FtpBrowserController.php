@@ -23,7 +23,6 @@ class FtpBrowserController extends Controller
     {
 
 
-
         return view('dashboard::office.index', compact('arrTabs', 'active'));
     }
 
@@ -35,16 +34,12 @@ class FtpBrowserController extends Controller
     {
 
 
-
         return view('ftp.manager');
     }
 
 
-
-
     public function setFTPCredentialsAdmin()
     {
-
 
 
         return view('ftp.credentials_admin');
@@ -52,7 +47,6 @@ class FtpBrowserController extends Controller
 
     public function setFTPCredentials()
     {
-
 
 
         return view('ftp.credentials');
@@ -98,7 +92,7 @@ class FtpBrowserController extends Controller
                     $arrData[] = [
                         'id' => "root_" . $key . "_file",
                         'text' => $file,
-                        'data' => "",
+                        'data' => "/",
                         'icon' => "jstree-file"
                     ];
                 }
@@ -113,7 +107,166 @@ class FtpBrowserController extends Controller
             return redirect()->route('office_ftp_connection', ['id' => Auth::id()]);
         }
 
-        return view('ftp.browser',compact('arrData'));
+        return view('ftp.browser', compact('arrData'));
+    }
+
+    public function ajaxCreateFolder(Request $request)
+    {
+        $folderId = $request['folderId'];
+        $folderNewName = $request['folderNewName'];
+        $folderPath = $request['folderPath'];
+        $strError = "";
+        $result = "success";
+        $root=false;
+
+
+
+        Storage::disk('ftp')->makeDirectory($folderPath . "/" . $folderNewName);
+
+        $countFolders = "";
+        $arrFolders = Storage::disk('ftp')->directories('/' . $folderPath);
+        if (!empty($arrFolders)) {
+            foreach ($arrFolders as $key => $path) {
+                $countFolders = $key;
+            }
+        }
+
+        $key = $countFolders + 1;
+        if(empty($folderPath)){
+            $folderItemId= "root_" . $key . "_folder";
+            $root=true;
+        }else{
+            $folderItemId=$folderId . "_" . $key . "_folder";
+        }
+        $arrData[] = [
+            'id' => $folderItemId,
+            'data' => $folderPath . "/" . $folderNewName,
+            'text' => $folderNewName,
+            'icon' => ""
+        ];
+
+        header('Content-Type: application/json');
+        echo json_encode(array(
+            'result' => $result,
+            'error' => $strError,
+            'arrData' => $arrData,
+            'root' => $root,
+        ));
+
+    }
+
+    public function downloadFile($file)
+    {
+
+
+        return Storage::disk('ftp')->download($file);
+    }
+    public function ajaxDeleteFolder(Request $request)
+    {
+        $folderPath = $request['folderPath'];
+        $strError = "";
+        $result = "success";
+
+        try{
+            Storage::disk('ftp')->deleteDirectory($folderPath);
+        }catch (\Exception $e){
+            $result = "";
+            $strError = "Can't delete folder";
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode(array(
+            'result' => $result,
+            'error' => $strError
+        ));
+    }
+
+    public function ajaxDeleteFile(Request $request)
+    {
+        $filePath = $request['filePath'];
+        $strError = "";
+        $result = "success";
+
+        try{
+            Storage::disk('ftp')->delete($filePath);
+        }catch (\Exception $e){
+            $result = "";
+            $strError = "Can't delete file";
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode(array(
+            'result' => $result,
+            'error' => $strError
+        ));
+    }
+
+    public function uploadFile(Request $request)
+    {
+        $strError = "";
+        $result = "success";
+        $folder_path = $request->folder_path;
+        $folder_id = !empty($request->folder_id)?$request->folder_id:'root';
+        $arrData=[];
+       // $arrAllowedExtension = ['png', 'jpg', 'jpeg','txt','pdf','xls','xls'];
+
+        $file = $request->file('file');
+        $extension = $file->getClientOriginalExtension();
+
+       // if (in_array($extension, $arrAllowedExtension)) {
+            if (!($file->getClientSize() > 2100000)) {
+                $name = $file->getClientOriginalName();
+
+                request()->file('file')->storeAs(
+                    'public/upload/' . Auth::id() . '/files/', $name
+                );
+
+                $exists = Storage::disk('ftp')->exists($folder_path.'/'.$name);
+                if(!$exists){
+                    $file_local =Storage::disk('local')->get('/public/upload/' . Auth::id() . '/files/'.$name);
+                    Storage::disk('ftp')->put($folder_path.'/'.$name, $file_local);
+
+
+                    $countFiles = "";
+                    $arrFiles = Storage::disk('ftp')->files('/' . $folder_path);
+                    if (!empty($arrFiles)) {
+                        foreach ($arrFiles as $key => $path) {
+                            $countFiles = $key;
+                        }
+                    }
+                    $key = $countFiles + 1;
+                    $arrData[] = [
+                        'id' => $folder_id . "_" . $key . "_file",
+                        'text' => $name,
+                        'data' => '/' . $folder_path,
+                        'icon' => "jstree-file"
+                    ];
+                }else{
+                    $result="";
+                    $strError="File with name ".$name." already exists in this folder!";
+                }
+
+                //unlink(storage_path('/app/public/upload/' . Auth::id() . '/files/'. $name));
+
+
+            } else {
+                $result = "Maximum allowed file size is 2 MB!";
+            }
+//        } else {
+//            $result = trans('images::messages.image_format_error',['formats'=>implode(",", $arrAllowedExtension)]);
+//        }
+
+
+
+
+
+        header('Content-Type: application/json');
+        echo json_encode(array(
+            'result' => $result,
+            'error' => $strError,
+            'arrData' => $arrData,
+            'folderId' => $folder_id,
+        ));
     }
 
 
@@ -156,7 +309,7 @@ class FtpBrowserController extends Controller
                     $arrData[] = [
                         'id' => $strId . "_" . $key . "_file",
                         'text' => $file,
-                        'data' => "",
+                        'data' => '/' . $strPath,
                         'icon' => "jstree-file"
                     ];
                 }
