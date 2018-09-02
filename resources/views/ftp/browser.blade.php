@@ -75,7 +75,7 @@
                 </div>
                 <div id="file_block">
                     <a href="#" class="btn btn-danger" id="delete_file">Delete file</a>
-                    <a href="{{route('download_file')}}" class="btn btn-success" id="download_file">Download file</a>
+                    <a href="#" class="btn btn-success" id="download_file">Download file</a>
                 </div>
             </div>
 
@@ -348,15 +348,8 @@
                     $('#delete_file,#download_file').attr('data-file', data.instance.get_node(data.selected[0]).text);
                     $('#delete_file,#download_file').attr('data-id', data.instance.get_node(data.selected[0]).id);
                     $('#delete_file,#download_file').attr('data-path', data.instance.get_node(data.selected[0]).data + '/' + data.instance.get_node(data.selected[0]).text);
-                    var strLink=$('#download_file').attr('href');
-                    strLink +="/"+data.instance.get_node(data.selected[0]).text;
-                    console.log(strLink);
+                    var strLink=route('download_file',{file:data.instance.get_node(data.selected[0]).text});
                     $('#download_file').attr('href',strLink);
-                    new Noty({
-                        type: 'error',
-                        layout: 'bottomLeft',
-                        text: '{{trans('messages.simple_file')}}'
-                    }).show();
                 }
 
             }).jstree({

@@ -21,8 +21,6 @@ class FtpBrowserController extends Controller
      */
     public function index()
     {
-
-
         return view('dashboard::office.index', compact('arrTabs', 'active'));
     }
 
@@ -32,23 +30,17 @@ class FtpBrowserController extends Controller
      */
     public function ftpManager()
     {
-
-
         return view('ftp.manager');
     }
 
 
     public function setFTPCredentialsAdmin()
     {
-
-
         return view('ftp.credentials_admin');
     }
 
     public function setFTPCredentials()
     {
-
-
         return view('ftp.credentials');
     }
 
@@ -119,8 +111,6 @@ class FtpBrowserController extends Controller
         $result = "success";
         $root=false;
 
-
-
         Storage::disk('ftp')->makeDirectory($folderPath . "/" . $folderNewName);
 
         $countFolders = "";
@@ -155,12 +145,23 @@ class FtpBrowserController extends Controller
 
     }
 
+    /**
+     * Functionality to download specific file
+     *
+     * @param $file
+     * @return mixed
+     */
     public function downloadFile($file)
     {
-
-
         return Storage::disk('ftp')->download($file);
     }
+
+
+    /**
+     * Functionality to delete specific folder from FTP
+     *
+     * @param Request $request
+     */
     public function ajaxDeleteFolder(Request $request)
     {
         $folderPath = $request['folderPath'];
@@ -181,6 +182,10 @@ class FtpBrowserController extends Controller
         ));
     }
 
+    /**
+     * Functionality to delete specific file from required folder on FTP server
+     * @param Request $request
+     */
     public function ajaxDeleteFile(Request $request)
     {
         $filePath = $request['filePath'];
@@ -246,7 +251,7 @@ class FtpBrowserController extends Controller
                     $strError="File with name ".$name." already exists in this folder!";
                 }
 
-                //unlink(storage_path('/app/public/upload/' . Auth::id() . '/files/'. $name));
+                unlink(storage_path('/app/public/upload/' . Auth::id() . '/files/'. $name));
 
 
             } else {
@@ -255,9 +260,6 @@ class FtpBrowserController extends Controller
 //        } else {
 //            $result = trans('images::messages.image_format_error',['formats'=>implode(",", $arrAllowedExtension)]);
 //        }
-
-
-
 
 
         header('Content-Type: application/json');
