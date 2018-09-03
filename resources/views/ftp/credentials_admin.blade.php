@@ -72,12 +72,11 @@
     <script>
         @if(Session::has('ftp_change'))
         new Noty({
-            type: 'success',
-            layout: 'topRight',
-            text: '{{session('ftp_change')}}'
-
+            type: '{{session('ftp_change')['type']}}',
+            layout: '{{session('ftp_change')['position']}}',
+            text: '{{session('ftp_change')['message']}}'
         }).show();
-        @endif
+            @endif
 
         var token = '{{\Illuminate\Support\Facades\Session::token()}}';
         //-- Functionality to update FTP connection type

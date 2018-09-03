@@ -27,6 +27,7 @@ class FtpBrowserController extends Controller
      */
     public function index()
     {
+
         return view('dashboard::office.index', compact('arrTabs', 'active'));
     }
 
@@ -36,6 +37,7 @@ class FtpBrowserController extends Controller
      */
     public function ftpManager()
     {
+
         return view('ftp.manager');
     }
 
@@ -55,27 +57,34 @@ class FtpBrowserController extends Controller
 
     public function CheckFTPConnectionType()
     {
-        if (!isset(Auth::user()->admin_setting->use_admin_ftp_credentials) || Auth::user()->admin_setting->use_admin_ftp_credentials == 'N') {
-            if (Auth::user()->setting->ftp_type === 'ftp') {
-                config(['filesystems.disks.ftp' => [
-                    'driver' => 'ftp',
-                    'host' => Auth::user()->setting->ftp_host,
-                    'username' => Auth::user()->setting->ftp_user_name,
-                    'password' => Auth::user()->setting->ftp_password
-                ]]);
-            } elseif (Auth::user()->setting->ftp_type === 'sftp') {
-                config(['filesystems.disks.sftp' => [
-                    'driver' => 'sftp',
-                    'host' => Auth::user()->setting->ftp_host,
-                    'username' => Auth::user()->setting->ftp_user_name,
-                    'password' => Auth::user()->setting->ftp_password,
-                    'root' => '/',
-                    'timeout' => 10,
-                    'port' => 22,
-                ]]);
-            }
+
+        if (Auth::user()->setting->ftp_type === 'ftp') {
+            config(['filesystems.disks.ftp' => [
+                'driver' => 'ftp',
+                'host' => Auth::user()->setting->ftp_host,
+                'username' => Auth::user()->setting->ftp_user_name,
+                'password' => Auth::user()->setting->ftp_password
+            ]]);
+        } elseif (Auth::user()->setting->ftp_type === 'sftp') {
+            config(['filesystems.disks.sftp' => [
+                'driver' => 'sftp',
+                'host' => Auth::user()->setting->ftp_host,
+                'username' => Auth::user()->setting->ftp_user_name,
+                'password' => Auth::user()->setting->ftp_password,
+                'root' => '/',
+                'timeout' => 10,
+                'port' => 22,
+            ]]);
         }
 
+
+        try {
+            Storage::disk(Auth::user()->setting->ftp_type)->files('/');
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -89,7 +98,14 @@ class FtpBrowserController extends Controller
 
         try {
             //-- Choose what type of FTP credentials to use
-            $this->CheckFTPConnectionType();
+            if (!isset(Auth::user()->admin_setting->use_admin_ftp_credentials) || Auth::user()->admin_setting->use_admin_ftp_credentials == 'N') {
+                $ftpStatus = $this->CheckFTPConnectionType();
+                if (!$ftpStatus) {
+                    if (empty($field)) {
+                        throw new \Exception(trans('messages.ftp_could_not_connect'));
+                    }
+                }
+            }
 
             $arrData = array();
 
@@ -124,12 +140,18 @@ class FtpBrowserController extends Controller
 
         } catch (\Exception $e) {
             $arrOptions = [
-                'message' => trans('messages.ftp_could_not_connect'),
+                'message' => $e->getMessage(),
                 'type' => 'error',
                 'position' => 'bottomLeft'
             ];
             Session::flash('ftp_change', $arrOptions);
-            return redirect()->route('office_ftp_connection', ['id' => Auth::id()]);
+
+            if (!isset(Auth::user()->admin_setting->use_admin_ftp_credentials) || Auth::user()->admin_setting->use_admin_ftp_credentials == 'N') {
+                return redirect()->route('office_ftp_connection', ['id' => Auth::id()]);
+            } else {
+                return redirect()->route('office_ftp_connection_admin', ['id' => Auth::id()]);
+            }
+
         }
 
         return view('ftp.browser', compact('arrData'));
@@ -143,10 +165,12 @@ class FtpBrowserController extends Controller
         $strError = "";
         $result = "success";
         $root = false;
-        $arrData=[];
-        $key=0;
+        $arrData = [];
+        $key = 0;
 
-        $this->CheckFTPConnectionType();
+        if (!isset(Auth::user()->admin_setting->use_admin_ftp_credentials) || Auth::user()->admin_setting->use_admin_ftp_credentials == 'N') {
+            $this->CheckFTPConnectionType();
+        }
 
         $exists = Storage::disk(Auth::user()->setting->ftp_type)->exists($folderPath . "/" . $folderNewName);
         if (!$exists) {
@@ -198,8 +222,16 @@ class FtpBrowserController extends Controller
      */
     public function downloadFile($file)
     {
-        $this->CheckFTPConnectionType();
-        return Storage::disk(Auth::user()->setting->ftp_type)->download($file);
+        if (!isset(Auth::user()->admin_setting->use_admin_ftp_credentials) || Auth::user()->admin_setting->use_admin_ftp_credentials == 'N') {
+            $this->CheckFTPConnectionType();
+        }
+
+        $current_path = session('current_path');
+        if(!isset($current_path) || empty($current_path) ){
+            $current_path='';
+        }
+
+        return Storage::disk(Auth::user()->setting->ftp_type)->download($current_path.'/'.$file);
     }
 
 
@@ -215,7 +247,9 @@ class FtpBrowserController extends Controller
         $result = "success";
 
         try {
-            $this->CheckFTPConnectionType();
+            if (!isset(Auth::user()->admin_setting->use_admin_ftp_credentials) || Auth::user()->admin_setting->use_admin_ftp_credentials == 'N') {
+                $this->CheckFTPConnectionType();
+            }
             Storage::disk(Auth::user()->setting->ftp_type)->deleteDirectory($folderPath);
         } catch (\Exception $e) {
             $result = "";
@@ -237,7 +271,18 @@ class FtpBrowserController extends Controller
         $result = "success";
         $arrData = [];
 
-        $this->CheckFTPConnectionType();
+        $arrFilePath=explode("/",$filePath);
+        if(count($arrFilePath)>1){
+            unset($arrFilePath[count($arrFilePath)-1]);
+            $strPath=implode("/",$arrFilePath);
+        }else{
+            $strPath="/";
+        }
+        $request->session()->put('current_path', $strPath);
+
+        if (!isset(Auth::user()->admin_setting->use_admin_ftp_credentials) || Auth::user()->admin_setting->use_admin_ftp_credentials == 'N') {
+            $this->CheckFTPConnectionType();
+        }
         $size = Storage::disk(Auth::user()->setting->ftp_type)->size('/' . $filePath);
         $last_modified = Storage::disk(Auth::user()->setting->ftp_type)->lastModified('/' . $filePath);
         $last_modified = DateTime::createFromFormat("U", $last_modified);
@@ -273,7 +318,9 @@ class FtpBrowserController extends Controller
         $result = "success";
 
         try {
-            $this->CheckFTPConnectionType();
+            if (!isset(Auth::user()->admin_setting->use_admin_ftp_credentials) || Auth::user()->admin_setting->use_admin_ftp_credentials == 'N') {
+                $this->CheckFTPConnectionType();
+            }
             Storage::disk(Auth::user()->setting->ftp_type)->delete($filePath);
         } catch (\Exception $e) {
             $result = "";
@@ -299,7 +346,9 @@ class FtpBrowserController extends Controller
         $file = $request->file('file');
         $extension = $file->getClientOriginalExtension();
 
-        $this->CheckFTPConnectionType();
+        if (!isset(Auth::user()->admin_setting->use_admin_ftp_credentials) || Auth::user()->admin_setting->use_admin_ftp_credentials == 'N') {
+            $this->CheckFTPConnectionType();
+        }
 
         // if (in_array($extension, $arrAllowedExtension)) {
         if (!($file->getClientSize() > 2100000)) {
@@ -371,11 +420,16 @@ class FtpBrowserController extends Controller
         $intFilesCount = 0;
         $intFoldersCount = 0;
 
+
+        $request->session()->put('current_path', $strPath);
+
         //-- Initialize array of folder children
         $arrData = array();
         try {
 
-            $this->CheckFTPConnectionType();
+            if (!isset(Auth::user()->admin_setting->use_admin_ftp_credentials) || Auth::user()->admin_setting->use_admin_ftp_credentials == 'N') {
+                $this->CheckFTPConnectionType();
+            }
 
             $arrFolders = Storage::disk(Auth::user()->setting->ftp_type)->directories('/' . $strPath);
             if (!empty($arrFolders)) {
@@ -448,7 +502,12 @@ class FtpBrowserController extends Controller
         setEnvironmentValue('FTP_USER_NAME', $ftp_user_name);
         setEnvironmentValue('FTP_PASS', $ftp_password);
 
-        Session::flash('ftp_change', trans('messages.ftp_credentials_were_updated'));
+        $arrOptions = [
+            'message' => trans('messages.ftp_credentials_were_updated'),
+            'type' => 'success',
+            'position' => 'topRight'
+        ];
+        Session::flash('ftp_change', $arrOptions);
         return redirect()->route('office_ftp_connection_admin', ['id' => $user->id]);
 
     }
