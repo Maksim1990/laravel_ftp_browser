@@ -358,7 +358,7 @@
 
     //-- Functionality when hide specific node
     function deleteNode(node) {
-        $('#' + node).hide();
+        $('#jstree').jstree('hide_node', $('#' +node));
     }
 
     //-- Functionality when close all nodes
