@@ -108,6 +108,10 @@
                             text: '{{trans('messages.type_of_connection')}}!'
                         }).show();
                     }
+
+                    //-- Change header ftp type information
+                    $("#ftp_type_header").text(use_sftp.toUpperCase());
+
                     //-- Hide loading image
                     $("div#divLoading").removeClass('show');
                 }

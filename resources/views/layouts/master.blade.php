@@ -57,15 +57,29 @@
 <div>
     <div class="row" id="header_block">
         <div class="col-sm-10 col-sm-offset-1">
-            <ul class="nav navbar-nav navbar-right" id="user_block_menu" >
+            <ul class="nav navbar-nav navbar-right" id="user_block_menu">
                 <li id="loggedName" class="w3-text-black">
                     <p href="#" class="tooltip_header_menu">
-                    @lang('messages.hello'), {{ Auth::user()->name }}!
-                                 <a class="dropdown-item" href="{{ route('logout') }}"
-                                    onclick="event.preventDefault();
+                        @if(Auth::user()->admin==1 && Auth::user()->admin_setting->use_admin_ftp_credentials=='Y')
+                        <a href="{{route('office_ftp_connection_admin',['id'=>Auth::id()])}}">
+                        <span class="w3-margin-right w3-text-green"
+                              style="border-radius: 20px;border:1px solid grey;padding: 10px 10px;">
+                           @lang('messages.using_admin_ftt')
+                        </span>
+                        </a>
+                        @endif
+                        <a href="{{route('office_ftp_connection',['id'=>Auth::id()])}}">
+                        <span class="w3-margin-right w3-text-red"
+                              style="border-radius: 20px;border:1px solid grey;padding: 10px 10px;">
+                            {!! trans('messages.connection_type',['connection'=>strtoupper(Auth::user()->setting->ftp_type)]) !!}
+                        </span>
+                        </a>
+                        @lang('messages.hello'), {{ Auth::user()->name }}!
+                        <a class="dropdown-item" href="{{ route('logout') }}"
+                           onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
-                                       @lang('messages.logout')
-                                    </a>
+                            @lang('messages.logout')
+                        </a>
 
                     </p>
                     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">

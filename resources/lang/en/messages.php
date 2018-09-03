@@ -20,7 +20,7 @@ return [
     'option_was_not_updated' => 'Option was not updated. Please try again!',
     'admin_settings_option_updated' => 'Admin settings option was updated!',
     'ftp_credentials_were_updated' => 'FTP credentials were successfully updated!',
-    'ftp_could_not_connect' => 'Could not connect to FTP host. Please check again FTP credentials!',
+    'ftp_could_not_connect' => 'Could not connect to FTP host. Please check again FTP credentials! Or activate SFTP if it\'s required!',
     'ftp_connection' => 'FTP connection',
     'ftp_manager' => 'FTP Manager',
     'ftp_admin_connection' => 'FTP admin connection',
@@ -72,4 +72,6 @@ return [
     'file_deleted' => "File successfully deleted",
     'type_of_connection_use' => "Use SFTP connection (default FTP)",
     'type_of_connection' => "FTP connection type was changed",
+    'using_admin_ftt' => "You are using admin FTP credentials",
+    'connection_type' => "You are using <span id='ftp_type_header'>:connection</span> connection",
 ];

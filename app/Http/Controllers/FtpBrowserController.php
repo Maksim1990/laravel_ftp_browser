@@ -91,13 +91,6 @@ class FtpBrowserController extends Controller
             //-- Choose what type of FTP credentials to use
             $this->CheckFTPConnectionType();
 
-//            $size = Storage::disk(Auth::user()->setting->ftp_type)->size('/test3.txt');
-//           dd($size);
-
-//            $arrFolders = Storage::disk(Auth::user()->setting->ftp_type)->directories("/");
-//            dd($arrFolders);
-            //dd(config('filesystems.disks.sftp'));
-
             $arrData = array();
 
             $arrFolders = Storage::disk(Auth::user()->setting->ftp_type)->directories('/');
@@ -151,6 +144,7 @@ class FtpBrowserController extends Controller
         $result = "success";
         $root = false;
         $arrData=[];
+        $key=0;
 
         $this->CheckFTPConnectionType();
 
