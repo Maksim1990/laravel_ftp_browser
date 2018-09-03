@@ -30,6 +30,7 @@ Route::post('/ajax_get_folder_content', 'FtpBrowserController@ajaxGetFolderConte
 Route::post('/ajax_create_folder', 'FtpBrowserController@ajaxCreateFolder')->name('ajax_create_folder');
 Route::post('/ajax_delete_folder', 'FtpBrowserController@ajaxDeleteFolder')->name('ajax_delete_folder');
 Route::post('/ajax_delete_file', 'FtpBrowserController@ajaxDeleteFile')->name('ajax_delete_file');
+Route::post('/ajax_file_data', 'FtpBrowserController@ajaxGetFileData')->name('ajax_file_data');
 Route::post('/upload_file', 'FtpBrowserController@uploadFile')->name('upload_file');
 
 Route::get('/download_file/{file?}', 'FtpBrowserController@downloadFile')->name('download_file');

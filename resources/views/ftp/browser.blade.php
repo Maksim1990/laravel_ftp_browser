@@ -7,19 +7,22 @@
             border-radius: 20px;
             border: 2px solid grey;
             padding: 20px 20px;
-            top:220px;
+            top: 220px;
         }
-        #browser_header{
+
+        #browser_header {
             position: fixed;
             background-color: white;
             z-index: 200;
             min-height: 200px;
             margin-left: 10%;
             padding: 20px 20px;
-            border-radius: 30px;box-shadow: 5px 10px #888888;
+            border-radius: 30px;
+            box-shadow: 5px 10px #888888;
 
         }
-        #jstree{
+
+        #jstree {
             margin-top: 220px;
         }
     </style>
@@ -71,11 +74,47 @@
                         <a href="#" id="save" class="save_folder_name btn btn-success">Save</a>
                         <a href="#" id="cancel_folder_name" class="btn btn-warning">Cancel</a>
                     </div>
-
+                    <div class="w3-container">
+                        <table class="w3-table w3-striped">
+                            <tr>
+                                <td><b>Folder name:</b></td>
+                                <td id="folder_name_info"></td>
+                            </tr>
+                            <tr>
+                                <td><b>Quantity of folders in this folder: </b></td>
+                                <td id="folder_folders_info"></td>
+                            </tr>
+                            <tr>
+                                <td><b>Quantity of files in this folder: </b></td>
+                                <td id="folder_files_info"></td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
                 <div id="file_block">
                     <a href="#" class="btn btn-danger" id="delete_file">Delete file</a>
                     <a href="#" class="btn btn-success" id="download_file">Download file</a>
+
+                    <div class="w3-container">
+                        <table class="w3-table w3-striped">
+                            <tr>
+                                <td><b>File name:</b></td>
+                                <td id="file_name_info"></td>
+                            </tr>
+                            <tr>
+                                <td><b>Size: </b></td>
+                                <td id="file_size_info"></td>
+                            </tr>
+                            <tr>
+                                <td><b>Parent folder: </b></td>
+                                <td id="file_folder_info"></td>
+                            </tr>
+                            <tr>
+                                <td><b>Last modified: </b></td>
+                                <td id="file_last_modified_info"></td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -233,9 +272,11 @@
         //-- Functionality to toggle create new folder name
         $('#create_folder').click(function () {
             $('#create_folder_name').toggle();
+            $('#upload_file_form').hide();
         });
         $('#create_folder_root').click(function () {
             $('#create_folder_name_root').toggle();
+            $('#upload_file_form').hide();
         });
 
         $('#upload_file,#upload_file_root').click(function () {
@@ -249,6 +290,7 @@
             }
 
             $('#upload_file_form').toggle();
+            $('#create_folder_name,#create_folder_name_root').hide();
         });
 
         //-- Functionality to toggle upload file form
@@ -331,6 +373,12 @@
                                 $('#hidden_folder_path').val(data.instance.get_node(data.selected[0]).data);
                                 $('#hidden_folder_id').val(data.instance.get_node(data.selected[0]).id);
 
+                                if (dataAjax['arrFolderData'] !== null) {
+                                    $('#folder_name_info').text(dataAjax['arrFolderData']['folder_name']);
+                                    $('#folder_folders_info').text(dataAjax['arrFolderData']['folders']);
+                                    $('#folder_files_info').text(dataAjax['arrFolderData']['files']);
+                                }
+
                             } else {
                                 new Noty({
                                     type: 'error',
@@ -348,10 +396,18 @@
                     $('#delete_file,#download_file').attr('data-file', data.instance.get_node(data.selected[0]).text);
                     $('#delete_file,#download_file').attr('data-id', data.instance.get_node(data.selected[0]).id);
                     $('#delete_file,#download_file').attr('data-path', data.instance.get_node(data.selected[0]).data + '/' + data.instance.get_node(data.selected[0]).text);
-                    var strLink=route('download_file',{file:data.instance.get_node(data.selected[0]).text});
-                    $('#download_file').attr('href',strLink);
-                }
+                    var strLink = route('download_file', {file: data.instance.get_node(data.selected[0]).text});
+                    $('#download_file').attr('href', strLink);
 
+                    var arrData = getFileData(data.instance.get_node(data.selected[0]).text, data.instance.get_node(data.selected[0]).data + '/' + data.instance.get_node(data.selected[0]).text);
+                    if (arrData !== null) {
+                        var arrDate=arrData['last_modified']['date'].split(" ");
+                        $('#file_last_modified_info').text(arrDate[0]);
+                        $('#file_name_info').text(arrData['name']);
+                        $('#file_size_info').text(arrData['size']+' bytes');
+                        $('#file_folder_info').text(arrData['folder']);
+                    }
+                }
             }).jstree({
                 'core': {
                     'data': {!! $arrData !!},
@@ -360,6 +416,38 @@
             });
         });
 
+        function getFileData(fileName, filePath) {
+            var url = '{{ route('ajax_file_data') }}';
+            var arrDetails = [];
+
+            $.ajax({
+                method: 'POST',
+                url: url,
+                async: false,
+                dataType: "json",
+                data: {
+                    fileName: fileName,
+                    filePath: filePath,
+                    _token: token
+                }, beforeSend: function () {
+                    //-- Show loading image while execution of ajax request
+                    $("div#divLoading").addClass('show');
+                },
+                success: function (dataAjax) {
+
+                    if (dataAjax['result'] === "success") {
+                        arrDetails = dataAjax['arrData'];
+                    }
+
+                    //-- Hide new folder name block
+                    $('#create_folder_name,#create_folder_name_root').hide();
+                    //-- Hide loading image
+                    $("div#divLoading").removeClass('show');
+                }
+            });
+
+            return arrDetails;
+        }
 
         // $('#jstree').on("hover_node.jstree", function (e, data) {
         //
