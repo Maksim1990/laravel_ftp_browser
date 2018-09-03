@@ -28,7 +28,7 @@ class User extends Authenticatable
     ];
 
     public function setting(){
-        return $this->hasOne('App\Setting');
+        return $this->hasOne(Setting::class);
     }
 
 

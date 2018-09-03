@@ -35,7 +35,6 @@ a .link{
 }
 .icon_module {
     transition: box-shadow .3s;
-    width: 90%;
     min-height: 180px;
     border-radius:10px;
     border: 1px solid #ccc;
@@ -117,6 +116,115 @@ a .link{
     border-radius: 40px;
     width: 90%;
 }
+
+#file_block, #folder_block {
+    display: none;
+    position: fixed;
+    border-radius: 20px;
+    border: 2px solid grey;
+    padding: 20px 20px;
+    top: 240px;
+}
+
+#browser_header {
+    position: fixed;
+    top: 20px;
+    background-color: white;
+    z-index: 200;
+    min-height: 200px;
+    margin-left: 10%;
+    padding: 20px 20px;
+    border-radius: 30px;
+    box-shadow: 5px 10px #888888;
+
+}
+#header_block{
+    position: fixed;
+    top:0px;
+    background-color: white;
+    z-index: 200;
+    display: block;
+    width: 100%;
+    padding-top: 15px;
+}
+#header_block a{
+    color: green;
+    font-weight: 600;
+}
+#jstree {
+    margin-top: 240px;
+}
+
+.material-switch > input[type="checkbox"] {
+    display: none;
+}
+
+.material-switch > label {
+    cursor: pointer;
+    height: 0px;
+    position: relative;
+    width: 60px;
+}
+
+.material-switch > label::before {
+    background: rgb(0, 0, 0);
+    box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    content: '';
+    height: 16px;
+    margin-top: -8px;
+    position:absolute;
+    opacity: 0.3;
+    transition: all 0.4s ease-in-out;
+    width: 40px;
+}
+.material-switch > label::after {
+    background: rgb(255, 255, 255);
+    border-radius: 16px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+    content: '';
+    height: 24px;
+    left: -4px;
+    margin-top: -8px;
+    position: absolute;
+    top: -4px;
+    transition: all 0.3s ease-in-out;
+    width: 24px;
+}
+.material-switch > input[type="checkbox"]:checked + label::before {
+    background: inherit;
+    opacity: 0.5;
+}
+.material-switch > input[type="checkbox"]:checked + label::after {
+    background: inherit;
+    left: 20px;
+}
+
+
+/* START File loading spinner style*/
+.loader {
+    border: 16px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 16px solid green;
+    width: 120px;
+    height: 120px;
+    margin: auto;
+    -webkit-animation: spin 2s linear infinite; /* Safari */
+    animation: spin 2s linear infinite;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* END File loading spinner style*/
 
 @media (min-width: 768px) {
 

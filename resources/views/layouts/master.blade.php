@@ -55,6 +55,26 @@
 </head>
 <body>
 <div>
+    <div class="row" id="header_block">
+        <div class="col-sm-10 col-sm-offset-1">
+            <ul class="nav navbar-nav navbar-right" id="user_block_menu" >
+                <li id="loggedName" class="w3-text-black">
+                    <p href="#" class="tooltip_header_menu">
+                    @lang('messages.hello'), {{ Auth::user()->name }}!
+                                 <a class="dropdown-item" href="{{ route('logout') }}"
+                                    onclick="event.preventDefault();
+                                                     document.getElementById('logout-form').submit();">
+                                       @lang('messages.logout')
+                                    </a>
+
+                    </p>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        {{ csrf_field() }}
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
     <main class="py-4">
         @yield('content')
     </main>

@@ -68,7 +68,20 @@ return [
             'host'     => env('FTP_HOST'),
             'username' => env('FTP_USER_NAME'),
             'password' => env('FTP_PASS')
+        ],
+        'sftp' => [
+            'driver' => 'sftp',
+            'host'     => env('SFTP_HOST'),
+            'username' => env('SFTP_USER_NAME'),
+            'password' => env('SFTP_PASS'),
+//            'privateKey' => '/root/.ssh',
+            'root' => '/var/www/html/',
+            'timeout' => 10,
+            'port' => 22,
         ]
+
+
+
 
     ],
 

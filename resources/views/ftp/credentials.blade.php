@@ -37,17 +37,82 @@
             <br>
             @include('includes.formErrors')
         </div>
+
+        {{-- Use admin FTP credentials--}}
+        <div class="col-sm-12 col-lg-12 col-xs-12">
+            <div class="col-sm-5 col-xs-12">
+                <p class="text">@lang('messages.type_of_connection_use')</p>
+
+            </div>
+            <div class="col-sm-5 hidden-lg hidden-sm col-xs-12">
+            </div>
+            <div class="col-sm-1 col-xs-12">
+                <div class="form-group" style="margin-top: 15px;">
+                    @php
+                        $strChecked="";
+                        if(Auth::user()->setting->ftp_type=='sftp'){
+                         $strChecked="checked";
+                        }
+                    @endphp
+                    <div class="material-switch pull-right">
+                        <input id="use_sftp" name="use_sftp"
+                               type="checkbox" {{$strChecked}}/>
+                        <label for="use_sftp" class="label-success"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-xs-12">
+                <hr>
+            </div>
+        </div>
+
     </div>
 @stop
 @section('scripts')
     <script>
         @if(Session::has('ftp_change'))
         new Noty({
-            type: 'error',
-            layout: 'bottomLeft',
-            text: '{{session('ftp_change')}}'
-
+            type: '{{session('ftp_change')['type']}}',
+            layout: '{{session('ftp_change')['position']}}',
+            text: '{{session('ftp_change')['message']}}'
         }).show();
         @endif
+
+        var token = '{{\Illuminate\Support\Facades\Session::token()}}';
+        //-- Functionality to update FTP connection type
+        $('#use_sftp').click(function () {
+            var url = '{{ route('ajax_use_sftp') }}';
+            var use_sftp = "ftp";
+
+            if ($(this).is(":checked"))
+            {
+                use_sftp="sftp";
+            }
+
+            $.ajax({
+                method: 'POST',
+                url: url,
+                dataType: "json",
+                data: {
+                    use_sftp: use_sftp,
+                    _token: token
+                }, beforeSend: function () {
+                    //-- Show loading image while execution of ajax request
+                    $("div#divLoading").addClass('show');
+                },
+                success: function (data) {
+                    if (data['result'] === "success") {
+                        new Noty({
+                            type: 'success',
+                            layout: 'topRight',
+                            text: '{{trans('messages.type_of_connection')}}!'
+                        }).show();
+                    }
+                    //-- Hide loading image
+                    $("div#divLoading").removeClass('show');
+                }
+            });
+        });
+
     </script>
-@endsection
+@stop
